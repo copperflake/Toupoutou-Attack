@@ -1,0 +1,58 @@
+#!/usr/bin/php
+<?php
+//
+//  Toupoutou Attack !
+//  Bastien Clément, Sacha Bron, TM 2010, Gymnase du Bugnon - Site de Sévelin
+//
+
+array_shift($argv);
+
+foreach($argv as $path):
+	if(!realpath($value)):
+		echo "$path doesn't exists, skipping !\n";
+		continue;
+	endif;
+	
+	if(pathinfo($path, PATHINFO_EXTENSION) != "png"):
+		echo "$path is not .png, skipping !\n";
+		continue;
+	endif;
+	
+	$name = basename($path, ".png");
+	list($width, $height) = getimagesize($path);
+	
+	echo "Compiling $name ({$width}x{$height} px)...\n";
+	
+	$im = imagecreatefrompng($path);
+	
+	if(!$im):
+		echo "Cannot read $path, skipping !\n";
+		continue;
+	endif;
+	
+	$mask = "MASK".pack("l", $width).pack("l", $height);
+	$buffer = 0;
+	$buffer_offset = 0;
+	
+	for($y = 0; $y < $height; $y++):
+		for($x = 0; $x < $width; $x++):
+			$colors = imagecolorsforindex($im, imagecolorat($im, $x, $y));
+			
+			$pixel = ($colors["alpha"] == 0) ? 1 : 0;
+			$buffer |= ($pixel << $buffer_offset);
+			
+			if(++$buffer_offset > 7):
+				$buffer_offset = 0;
+				$mask .= chr($buffer);
+				$buffer = 0;
+			endif;
+		endfor;
+	endfor;
+	
+	$mask .= chr($buffer);
+	$buffer = 0;
+				
+	$fp = fopen(dirname($path)."/$name.mask", "wb");
+	fwrite($fp, $mask);
+	fclose($fp);
+endforeach;

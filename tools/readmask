@@ -1,0 +1,60 @@
+#!/usr/bin/php
+<?php
+//
+//  Toupoutou Attack !
+//  Bastien Clément, Sacha Bron, TM 2010, Gymnase du Bugnon - Site de Sévelin
+//
+
+array_shift($argv);
+
+function mask_getPixelAt($mask, $w, $h, $x, $y) {
+	$pixel = ($y*$w)+$x;
+	$byte = floor($pixel/8);
+	$offset = $pixel%8;
+	
+	return ord($mask{$byte}) & (1 << $offset);
+}
+
+foreach($argv as $path):
+	if(!realpath($value)):
+		echo "$path doesn't exists, skipping !\n";
+		continue;
+	endif;
+	
+	if(pathinfo($path, PATHINFO_EXTENSION) != "mask"):
+		echo "$path is not .mask, skipping !\n";
+		continue;
+	endif;
+	
+	$mask_fp = fopen($path, "r");
+	
+	if(fread($mask_fp, 4) != "MASK"):
+		echo "Error reading $path, skipping !\n";
+		fclose($mask_fp);
+		continue;
+	endif;
+	
+	$size = unpack("lw/lh", fread($mask_fp, 8));
+	$w = $size["w"]; $h = $size["h"];
+	
+	if($w <= 0 || $h <= 0):
+		echo "Error reading $path, skipping !\n";
+		fclose($mask_fp);
+		continue;
+	endif;
+	
+	echo "Decompiling $name ({$w}x{$h} px)...\n";
+	
+	$mask = '';
+	while (!feof($mask_fp))
+		$mask .= fread($mask_fp, 8192);
+	fclose($mask_fp);
+		
+	for($y = 0; $y < $h; $y++):
+		for($x = 0; $x < $w; $x++):
+			echo (mask_getPixelAt($mask, $w, $h, $x, $y)) ? "#" : " ";
+		endfor;
+		echo "\n";
+	endfor;
+	echo "\n";
+endforeach;

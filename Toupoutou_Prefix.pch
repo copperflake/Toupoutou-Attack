@@ -1,0 +1,14 @@
+//
+//  Toupoutou Attack !
+//  Bastien Clément, Sacha Bron, TM 2010, Gymnase du Bugnon - Site de Sévelin
+//
+
+//
+// Ce fichier a été créé automatiquement par XCode et n'a été que peu modifié.
+// Il n'est donc pas d'un grand intérêt concernant notre travail.
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+    #import <UIKit/UIKit.h>
+#endif
