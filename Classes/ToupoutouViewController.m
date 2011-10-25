@@ -576,6 +576,8 @@
 // comprendre au joueur débutant l'action à effectuer.
 //
 - (void) displayTutorial:(Tutorial)tutorial; {
+    if(gameState != playing) return;
+
 	// On s'assure qu'il soit encore nécessaire d'afficher les indications
 	if(tutorial == dash) {
 		if(dashTutorial <= 0) return;
